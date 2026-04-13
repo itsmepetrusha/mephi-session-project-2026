@@ -1,0 +1,113 @@
+    1  sudo -i
+    2  uname -a
+    3  id
+    4  who
+    5  pwd
+    6  date
+    7  nmcli device status
+    8  nmcli con show
+    9  nmcli con mod enp0s1 ipv4.addresses 192.168.1.100/24
+   10  nmcli con mod enp0s1 ipv4.gateway 192.168.1.1
+   11  nmcli con mod enp0s1 ipv4.dns 8.8.8.8
+   12  nmcli con mod enp0s1 ipv4.method manual
+   13  nmcli con up enp0s1
+   14  ip addr show enp0s1
+   15  hostnamectl set-hostname mephi-2026.domain.local
+   16  hostnamectl
+   17  ping -c 4 8.8.8.8
+   18  ping -c 4 192.168.1.1
+   19  ip route
+   20  ping -c 4 8.8.8.8 > /tmp/network_check.txt
+   21  ping -c 4 192.168.1.1 >> /tmp/network_check.txt
+   22  cat /tmp/network_check.txt
+   23  dnf install -y nginx tcpdump libcap-ng-utils
+   24  dnf download tcpdump --destdir /tmp
+   25  ls /tmp/tcpdump*
+   26  rpm -ivh /tmp/tcpdump-*.rpm --force
+   27  rpm -qa | grep tcpdump
+   28  lsblk
+   29  parted /dev/vdb --script mklabel msdos mkpart primary ext4 0% 100%
+   30  mkfs.ext4 -L MEPHI_DATA /dev/vdb1
+   31  mkdir -p /data/mephi-web
+   32  echo 'LABEL=MEPHI_DATA /data/mephi-web ext4 defaults 0 2' >> /etc/fstab
+   33  cat /etc/fstab
+   34  mount -a
+   35  df -h /data/mephi-web
+   36  systemctl start nginx
+   37  systemctl enable nginx
+   38  systemctl status nginx
+   39  journalctl -u nginx --since "5 minutes ago"
+   40  journalctl -u nginx --since "5 minutes ago" > /tmp/nginx_recent_logs.txt
+   41  groupadd mephi-devs
+   42  useradd -m mephi-admin
+   43  usermod -aG mephi-devs mephi-admin
+   44  echo 'mephi-admin:P@ssw0rd2026' | chpasswd
+   45  id mephi-admin
+   46  chown mephi-admin:mephi-devs /data/mephi-web
+   47  chmod 2775 /data/mephi-web
+   48  ls -ld /data/mephi-web
+   49  getenforce
+   50  cat /etc/selinux/config
+   51  dnf install -y policycoreutils-python-utils
+   52  semanage fcontext -a -t httpd_sys_content_t "/data/mephi-web(/.*)?"
+   53  restorecon -Rv /data/mephi-web
+   54  ls -Zd /data/mephi-web
+   55  chmod u-s /usr/sbin/tcpdump
+   56  setcap cap_net_raw,cap_net_admin+ep /usr/sbin/tcpdump
+   57  getcap /usr/sbin/tcpdump
+   58  sudo -u mephi-admin tcpdump --help
+   59  echo 'root' > /etc/ssh/denied_users
+   60  chmod 644 /etc/ssh/denied_users
+   61  cat /etc/pam.d/sshd
+   62  sed -i '/#%PAM-1.0/a auth required pam_listfile.so item=user sense=deny file=/etc/ssh/denied_users onerr=succeed' /etc/pam.d/sshd
+   63  cat /etc/pam.d/sshd
+   64  sed -i 's/^#*PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+   65  systemctl restart sshd
+   66  cat /etc/pam.d/login
+   67  sed -i '/#%PAM-1.0/a auth required pam_listfile.so item=user sense=deny file=/etc/ssh/denied_users onerr=succeed' /etc/pam.d/login
+   68  cat /etc/pam.d/login
+   69  cat > /etc/nginx/conf.d/mephi.conf << 'EOF'
+   70  server {
+   71      listen 80 default_server;
+   72      server_name _;
+   73      root /data/mephi-web;
+   74      index index.html;
+   75  }
+   76  EOF
+   77  rm -f /etc/nginx/conf.d/default.conf
+   78  nginx -t
+   79  systemctl restart nginx
+   80  sudo -u mephi-admin bash -c 'echo "Hello from Student: 255556" > /data/mephi-web/index.html'
+   81  restorecon -v /data/mephi-web/index.html
+   82  ls -Z /data/mephi-web/index.html
+   83  curl http://localhost
+   84  curl http://192.168.1.100
+   85  history > ~/project_history.txt
+   86  ping -c 4 192.168.1.1 > ~/network_check.txt
+   87  ping -c 4 8.8.8.8 >> ~/network_check.txt
+   88  journalctl -u nginx --since "5 minutes ago" > ~/nginx_recent_logs.txt
+   89  cp /etc/fstab ~/fstab.txt
+   90  getenforce > ~/selinux_status.txt
+   91  ls -Zd /data/mephi-web > ~/file_contexts.txt
+   92  getcap /usr/sbin/tcpdump > ~/tcpdump_capabilities.txt
+   93  stat /data/mephi-web > ~/permissions.txt
+   94  id mephi-admin > ~/users_groups.txt
+   95  getent group mephi-devs >> ~/users_groups.txt
+   96  curl -s http://192.168.1.100 > ~/curl_output.txt
+   97  cp /data/mephi-web/index.html ~/index.html
+   98  cp /tmp/tcpdump-*.rpm ~/
+   99  ls ~/*.txt ~/*.rpm ~/index.html
+  100  dnf install -y git
+  101  cd ~
+  102  git init mephi-session-project-2026
+  103  cd mephi-session-project-2026
+  104  cp ~/project_history.txt ~/network_check.txt ~/nginx_recent_logs.txt .
+  105  cp ~/fstab.txt ~/selinux_status.txt ~/file_contexts.txt .
+  106  cp ~/tcpdump_capabilities.txt ~/permissions.txt ~/users_groups.txt .
+  107  cp ~/curl_output.txt ~/index.html ~/mephi-nginx-screenshot.png .
+  108  cp ~/tcpdump-*.rpm .
+  109  git add .
+  110  git commit -m "Add MEPHI session project 2026 files"
+  111  git branch -M main
+  112  git remote add origin https://github.com/itsmepetrusha/mephi-session-project-2026.git
+  113  git push -u origin main
